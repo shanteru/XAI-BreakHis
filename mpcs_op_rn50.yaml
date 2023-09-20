@@ -57,11 +57,12 @@
 
 #Logs
 "logs":
-  "tensorboard_base_path": "/results/tensorboard_bc/"
+  "tensorboard_base_path": "results/tensorboard_bc/"
   "tensorboard_file_path": None
   "stats_file_path": None
 
 #Outcome
 "results":
-  "result_base_path": "/results/results_bc/"
+  "result_base_path": "results/results_bc/"
   "result_dir_path": None
+

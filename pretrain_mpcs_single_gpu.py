@@ -35,8 +35,8 @@ def pretrain_model(args_dict, fold):
     print(fold_root)
     LR = args_dict["learning_rate"]["lr_only"]
     patience = args_dict["learning_rate"]["patience"]
-    # gpu_no = (args_dict["computational_infra"]["fold_to_gpu_mapping"][fold])
-    # GPU = torch.device(f"cuda:{gpu_no}")
+    gpu_no = (args_dict["computational_infra"]["fold_to_gpu_mapping"][fold])
+    GPU = torch.device(f"cuda:{gpu_no}")
     GPU = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     pretraining_method = args_dict["method"]["name"]
     pair_sampling_method = args_dict["method"]["variant"]
@@ -44,7 +44,7 @@ def pretrain_model(args_dict, fold):
     version = args_dict["encoder"]["version"]
     batch_size_list = args_dict["batch_size_list"]
     epochs = args_dict["epochs"]    
-        
+
     # Get network for pretraining with MLP head
     model = None
     if "resnet" == args_dict["encoder"]["name"]:
@@ -56,8 +56,8 @@ def pretrain_model(args_dict, fold):
             supervised_pretrained=supervised_pretrained)
 
     #model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
-    # model = model.cuda(GPU)
-    model = model.to(GPU)
+    model = model.cuda(GPU)
+    # model = model.to(GPU)
     # Configure optimizer, schedular, loss, other configurations
     optimizer = optim.Adam(model.parameters(), lr=LR)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer,
@@ -74,8 +74,13 @@ def pretrain_model(args_dict, fold):
     experiment_description = f"_{fold}_{pretraining_method}_{pair_sampling_method}_{encoder}{version}_{args_dict['encoder']['pretrained']}_"
 
     # save expermental pramters details as yaml file in result folder with the name of experiment
+    print("ahhhhhhhhhhh",os.path.join(args_dict["results"]["result_base_path"]))
+    
     os.makedirs(os.path.join(args_dict["results"]["result_base_path"], experiment_description), exist_ok=True)
+
+    print(os.path.join(args_dict["results"]["result_base_path"], experiment_description))
     with open(f"{os.path.join(args_dict['results']['result_base_path'], experiment_description)}/experiment_config.yaml", 'w') as file:
+        print("happen")
         documents = yaml.dump(args_dict, file)
 
     for batch_size in batch_size_list:
@@ -127,8 +132,9 @@ if __name__ == '__main__':
 
     #mp.set_start_method('spawn')
     for fold in list(args_dict["computational_infra"]["fold_to_gpu_mapping"].keys()):
-        #pretrain_model(args_dict, fold)
-        process = mp.Process(target=pretrain_model, args=(args_dict, fold))
-        process.start()
+        pretrain_model(args_dict, fold)
+        # process = mp.Process(target=pretrain_model, args=(args_dict, fold))
+        # process.start()
         
         #process.join()
+    # pretrain_model(args_dict,"Fold_4_5")
